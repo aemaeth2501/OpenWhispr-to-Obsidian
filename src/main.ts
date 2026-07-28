@@ -88,6 +88,13 @@ export default class OpenWhisprPlugin extends Plugin {
 		const bag = this.settings as unknown as Record<string, unknown>;
 		delete bag.overwriteExisting;
 		delete bag.extraCliArgs;
+
+		// Guard against malformed data.json.
+		if (!Array.isArray(this.settings.excludedFolderIds)) {
+			this.settings.excludedFolderIds = [];
+		} else {
+			this.settings.excludedFolderIds = this.settings.excludedFolderIds.map(String);
+		}
 	}
 
 	async saveSettings() {
@@ -97,6 +104,11 @@ export default class OpenWhisprPlugin extends Plugin {
 
 	private cli(): OpenWhisprCli {
 		return new OpenWhisprCli(this.settings);
+	}
+
+	/** List OpenWhispr folders via the CLI (used by the settings UI). */
+	listFolders() {
+		return this.cli().listFolders();
 	}
 
 	// ---- auto-sync --------------------------------------------------------
@@ -208,8 +220,9 @@ export default class OpenWhisprPlugin extends Plugin {
 	// ---- sync internals ---------------------------------------------------
 
 	/**
-	 * Resolve folder names onto each note, order newest-first, and apply the
-	 * sync limit (unless "sync all history" is on).
+	 * Resolve folder names onto each note, drop notes in excluded folders,
+	 * order newest-first, and apply the sync limit (unless "sync all history"
+	 * is on).
 	 */
 	private selectNotes(
 		notes: OpenWhisprNote[],
@@ -220,6 +233,12 @@ export default class OpenWhisprPlugin extends Plugin {
 				const name = folderNames.get(String(note.folder_id));
 				if (name) note.folder = name;
 			}
+		}
+		const excluded = new Set(this.settings.excludedFolderIds);
+		if (excluded.size > 0) {
+			notes = notes.filter(
+				(note) => note.folder_id == null || !excluded.has(String(note.folder_id))
+			);
 		}
 		notes.sort((a, b) => parseNoteDate(b).getTime() - parseNoteDate(a).getTime());
 		if (this.settings.syncAllHistory) return notes;

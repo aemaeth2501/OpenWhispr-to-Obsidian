@@ -6,6 +6,7 @@ import {
 	SettingDefinitionItem,
 } from "obsidian";
 import type OpenWhisprPlugin from "./main";
+import { FolderExclusionModal } from "./exclusions";
 import type { OpenWhisprSettings } from "./types";
 
 type SettingKey = keyof OpenWhisprSettings;
@@ -307,6 +308,22 @@ export class OpenWhisprSettingTab extends PluginSettingTab {
 								.setButtonText("Sync now")
 								.setCta()
 								.onClick(() => void this.plugin.syncNotes())
+						);
+					},
+				},
+				{
+					name: "Excluded folders",
+					desc:
+						"Skip syncing notes from selected OpenWhispr folders (e.g. Personal). " +
+						"Folders are fetched from the CLI so you can pick from a list. " +
+						"Default: none excluded.",
+					render: (setting) => {
+						setting.addButton((btn) =>
+							btn
+								.setButtonText("Choose folders")
+								.onClick(() =>
+									new FolderExclusionModal(this.app, this.plugin).open()
+								)
 						);
 					},
 				},

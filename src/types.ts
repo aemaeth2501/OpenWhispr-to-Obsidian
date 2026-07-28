@@ -76,6 +76,8 @@ export interface OpenWhisprSettings {
 	folderDateFormat: string;
 
 	// ---- Sync ----
+	/** OpenWhispr folder ids whose notes are skipped during sync. */
+	excludedFolderIds: string[];
 	/** Max notes to sync per run (most recent first). Ignored if syncAllHistory. */
 	syncLimit: number;
 	/** Sync the entire history every run, ignoring syncLimit. */
@@ -104,6 +106,7 @@ export const DEFAULT_SETTINGS: OpenWhisprSettings = {
 	folderStructure: "flat",
 	folderDateFormat: "YYYY-MM-DD",
 
+	excludedFolderIds: [],
 	syncLimit: 50,
 	syncAllHistory: false,
 	autoSyncMinutes: 0,

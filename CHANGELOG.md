@@ -4,6 +4,11 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Excluded folders: pick OpenWhispr folders (fetched via the CLI) whose notes
+  should be skipped during sync — e.g. a Personal folder.
+
 ## [1.0.7] - 2026-07-19
 
 - Changes based on Obsidian plugin submission review
